@@ -13,20 +13,20 @@
 
 =========================================================================*/
 
-#include "vtkJOGLRenderWindow.h"
+#include "vtkGenericJavaRenderWindow.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkCommand.h"
 
-vtkStandardNewMacro(vtkJOGLRenderWindow);
+vtkStandardNewMacro(vtkGenericJavaRenderWindow);
 
-vtkJOGLRenderWindow::vtkJOGLRenderWindow()
+vtkGenericJavaRenderWindow::vtkGenericJavaRenderWindow()
 {
     IsCurrentFlag = 0;
 }
 
-vtkJOGLRenderWindow::~vtkJOGLRenderWindow()
+vtkGenericJavaRenderWindow::~vtkGenericJavaRenderWindow()
 {
   this->Finalize();
 
@@ -40,42 +40,42 @@ vtkJOGLRenderWindow::~vtkJOGLRenderWindow()
     }
 }
 
-void vtkJOGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGenericJavaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-void vtkJOGLRenderWindow::SetFrontBuffer(unsigned int b)
+void vtkGenericJavaRenderWindow::SetFrontBuffer(unsigned int b)
 {
   this->FrontBuffer = b;
 }
 
-void vtkJOGLRenderWindow::SetFrontLeftBuffer(unsigned int b)
+void vtkGenericJavaRenderWindow::SetFrontLeftBuffer(unsigned int b)
 {
   this->FrontLeftBuffer = b;
 }
 
-void vtkJOGLRenderWindow::SetFrontRightBuffer(unsigned int b)
+void vtkGenericJavaRenderWindow::SetFrontRightBuffer(unsigned int b)
 {
   this->FrontRightBuffer = b;
 }
 
-void vtkJOGLRenderWindow::SetBackBuffer(unsigned int b)
+void vtkGenericJavaRenderWindow::SetBackBuffer(unsigned int b)
 {
   this->BackBuffer = b;
 }
 
-void vtkJOGLRenderWindow::SetBackLeftBuffer(unsigned int b)
+void vtkGenericJavaRenderWindow::SetBackLeftBuffer(unsigned int b)
 {
   this->BackLeftBuffer = b;
 }
 
-void vtkJOGLRenderWindow::SetBackRightBuffer(unsigned int b)
+void vtkGenericJavaRenderWindow::SetBackRightBuffer(unsigned int b)
 {
   this->BackRightBuffer = b;
 }
 
-void vtkJOGLRenderWindow::Finalize()
+void vtkGenericJavaRenderWindow::Finalize()
 {
   // tell each of the renderers that this render window/graphics context
   // is being removed (the RendererCollection is removed by vtkRenderWindow's
@@ -91,17 +91,17 @@ void vtkJOGLRenderWindow::Finalize()
     }
 }
 
-void vtkJOGLRenderWindow::Frame()
+void vtkGenericJavaRenderWindow::Frame()
 {
   this->InvokeEvent(vtkCommand::WindowFrameEvent, NULL);
 }
 
-void vtkJOGLRenderWindow::MakeCurrent()
+void vtkGenericJavaRenderWindow::MakeCurrent()
 {
   this->InvokeEvent(vtkCommand::WindowMakeCurrentEvent, NULL);
 }
 
-bool vtkJOGLRenderWindow::IsCurrent()
+bool vtkGenericJavaRenderWindow::IsCurrent()
 {
   // bool current = 0;
   // Should set is current flag.
@@ -109,21 +109,21 @@ bool vtkJOGLRenderWindow::IsCurrent()
   return IsCurrentFlag != 0;
 }
 
-int vtkJOGLRenderWindow::SupportsOpenGL()
+int vtkGenericJavaRenderWindow::SupportsOpenGL()
 {
   int supports_ogl = 0;
   this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent, &supports_ogl);
   return supports_ogl;
 }
 
-int vtkJOGLRenderWindow::IsDirect()
+int vtkGenericJavaRenderWindow::IsDirect()
 {
   int is_direct = 0;
   this->InvokeEvent(vtkCommand::WindowIsDirectEvent, &is_direct);
   return is_direct;
 }
 
-void vtkJOGLRenderWindow::PushState()
+void vtkGenericJavaRenderWindow::PushState()
 {
   glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
   glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -136,7 +136,7 @@ void vtkJOGLRenderWindow::PushState()
   glLoadIdentity();
 }
 
-void vtkJOGLRenderWindow::PopState()
+void vtkGenericJavaRenderWindow::PopState()
 {
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
@@ -148,94 +148,94 @@ void vtkJOGLRenderWindow::PopState()
 }
 
 
-void vtkJOGLRenderWindow::SetWindowId(void*)
+void vtkGenericJavaRenderWindow::SetWindowId(void*)
 {
 }
 
-void* vtkJOGLRenderWindow::GetGenericWindowId()
-{
-  return NULL;
-}
-
-
-void vtkJOGLRenderWindow::SetDisplayId(void*)
-{
-}
-
-void vtkJOGLRenderWindow::SetParentId(void*)
-{
-}
-
-void* vtkJOGLRenderWindow::GetGenericDisplayId()
+void* vtkGenericJavaRenderWindow::GetGenericWindowId()
 {
   return NULL;
 }
 
-void* vtkJOGLRenderWindow::GetGenericParentId()
+
+void vtkGenericJavaRenderWindow::SetDisplayId(void*)
+{
+}
+
+void vtkGenericJavaRenderWindow::SetParentId(void*)
+{
+}
+
+void* vtkGenericJavaRenderWindow::GetGenericDisplayId()
 {
   return NULL;
 }
 
-void* vtkJOGLRenderWindow::GetGenericContext()
+void* vtkGenericJavaRenderWindow::GetGenericParentId()
 {
   return NULL;
 }
 
-void* vtkJOGLRenderWindow::GetGenericDrawable()
+void* vtkGenericJavaRenderWindow::GetGenericContext()
 {
   return NULL;
 }
 
-void vtkJOGLRenderWindow::SetWindowInfo(char*)
-{
-}
-
-void vtkJOGLRenderWindow::SetParentInfo(char*)
-{
-}
-
-int* vtkJOGLRenderWindow::GetScreenSize()
+void* vtkGenericJavaRenderWindow::GetGenericDrawable()
 {
   return NULL;
 }
 
-void vtkJOGLRenderWindow::Start()
+void vtkGenericJavaRenderWindow::SetWindowInfo(char*)
 {
 }
 
-void vtkJOGLRenderWindow::HideCursor()
+void vtkGenericJavaRenderWindow::SetParentInfo(char*)
 {
 }
 
-void vtkJOGLRenderWindow::ShowCursor()
+int* vtkGenericJavaRenderWindow::GetScreenSize()
+{
+  return NULL;
+}
+
+void vtkGenericJavaRenderWindow::Start()
 {
 }
 
-void vtkJOGLRenderWindow::SetFullScreen(int)
+void vtkGenericJavaRenderWindow::HideCursor()
 {
 }
 
-void vtkJOGLRenderWindow::WindowRemap()
+void vtkGenericJavaRenderWindow::ShowCursor()
 {
 }
 
-int vtkJOGLRenderWindow::GetEventPending()
+void vtkGenericJavaRenderWindow::SetFullScreen(int)
+{
+}
+
+void vtkGenericJavaRenderWindow::WindowRemap()
+{
+}
+
+int vtkGenericJavaRenderWindow::GetEventPending()
 {
   return 0;
 }
 
-void vtkJOGLRenderWindow::SetNextWindowId(void*)
+void vtkGenericJavaRenderWindow::SetNextWindowId(void*)
 {
 }
 
-void vtkJOGLRenderWindow::SetNextWindowInfo(char*)
+void vtkGenericJavaRenderWindow::SetNextWindowInfo(char*)
 {
 }
 
-void vtkJOGLRenderWindow::CreateAWindow()
+void vtkGenericJavaRenderWindow::CreateAWindow()
 {
 }
 
-void vtkJOGLRenderWindow::DestroyWindow()
+void vtkGenericJavaRenderWindow::DestroyWindow()
 {
 }

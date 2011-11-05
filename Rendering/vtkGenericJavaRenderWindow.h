@@ -12,29 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkJOGLRenderWindow - platform independent render window
+// .NAME vtkGenericJavaRenderWindow - platform independent render window
 
 // .SECTION Description
-// vtkJOGLRenderWindow provides a skeleton for implementing a render window
+// vtkGenericJavaRenderWindow provides a skeleton for implementing a render window
 // using one's own OpenGL context and drawable.
 // To be effective, one must register an observer for WindowMakeCurrentEvent,
 // WindowIsCurrentEvent and WindowFrameEvent.  When this class sends a WindowIsCurrentEvent,
 // the call data is an bool* which one can use to return whether the context is current.
 
-#ifndef vtkJOGLRenderWindow_hpp
-#define vtkJOGLRenderWindow_hpp
+#ifndef vtkGenericJavaRenderWindow_hpp
+#define vtkGenericJavaRenderWindow_hpp
 
 #include "vtkOpenGLRenderWindow.h"
 
-class VTK_RENDERING_EXPORT vtkJOGLRenderWindow : public vtkOpenGLRenderWindow
+class VTK_RENDERING_EXPORT vtkGenericJavaRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
-  static vtkJOGLRenderWindow* New();
-  vtkTypeMacro(vtkJOGLRenderWindow, vtkOpenGLRenderWindow);
+  static vtkGenericJavaRenderWindow* New();
+  vtkTypeMacro(vtkGenericJavaRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 protected:
-  vtkJOGLRenderWindow();
-  ~vtkJOGLRenderWindow();
+  vtkGenericJavaRenderWindow();
+  ~vtkGenericJavaRenderWindow();
   int IsCurrentFlag;
 
 
@@ -114,8 +114,8 @@ public:
 protected:
 
 private:
-  vtkJOGLRenderWindow(const vtkJOGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkJOGLRenderWindow&);  // Not implemented.
+  vtkGenericJavaRenderWindow(const vtkGenericJavaRenderWindow&);  // Not implemented.
+  void operator=(const vtkGenericJavaRenderWindow&);  // Not implemented.
 };
 
 #endif

@@ -612,7 +612,7 @@ IF(VTK_USE_GL2PS)
 ENDIF(VTK_USE_GL2PS)
 
 IF(OPENGL_gl_LIBRARY)
-    SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkGenericOpenGLRenderWindow.cxx vtkJOGLRenderWindow.cxx)
+    SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkGenericOpenGLRenderWindow.cxx vtkGenericJavaRenderWindow.cxx)
 ENDIF(OPENGL_gl_LIBRARY)
 
 IF (WIN32)
