@@ -111,16 +111,12 @@ bool vtkGenericJavaRenderWindow::IsCurrent()
 
 int vtkGenericJavaRenderWindow::SupportsOpenGL()
 {
-  int supports_ogl = 0;
-  this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent, &supports_ogl);
-  return supports_ogl;
+  return 1;
 }
 
 int vtkGenericJavaRenderWindow::IsDirect()
 {
-  int is_direct = 0;
-  this->InvokeEvent(vtkCommand::WindowIsDirectEvent, &is_direct);
-  return is_direct;
+  return 1;
 }
 
 void vtkGenericJavaRenderWindow::PushState()
