@@ -1,0 +1,2 @@
+This branch adds to vtk a java vtk canvas class which is based on lwjgl.
+Please see lwjglvtkcanvas/LWJGLVTKCanvas.java for why this abomination exists.
