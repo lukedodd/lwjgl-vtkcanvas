@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
 
 import javax.swing.JFrame;
@@ -39,27 +40,27 @@ import vtk.*;
 //
 //    [1] http://vtk.1045678.n5.nabble.com/Crashes-in-Java-wrapped-vtk-on-linux-because-of-xcb-problems-td5023093.html
 public class LWJGLVTKCanvas extends AWTGLCanvas{
-	
-	
+
+
 	private vtkRenderer ren;
 	// A render window for which we can easily specify the MakeCurrent and IsCurrent 
 	// operations from Java using vtk observesr.
 	// (I don't use the standard vtkGenericRenderWindow class because it's not quite possible
 	//  to implement IsCurrent using observers from Java.)
 	private vtkGenericJavaRenderWindow rw;
-	
+
 	// If true will dispose after removeNotify and panel can't be used after being removed.
 	private boolean autoDispose = true; 
-	
-	
+
+
 	public interface PreRenderOperation{
 		public void rendering(LWJGLVTKCanvas src);
 	}
-	
+
 	// This functor will be run prior to any render.
 	// Useful for catching renderings prompted by a resize.
 	private PreRenderOperation preRender = null;
-	
+
 	public LWJGLVTKCanvas() throws LWJGLException {
 		super();
 		ren = new vtkRenderer();
@@ -67,29 +68,29 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 		rw.AddRenderer(ren);
 		rw.SetSize(getWidth(), getHeight());
 		// Tell the generic render window how to make the GL context current.
-        rw.AddObserver("WindowMakeCurrentEvent", this, "MakeCurrent");
-        rw.AddObserver("WindowIsCurrentEvent", this, "IsCurrent");
+		rw.AddObserver("WindowMakeCurrentEvent", this, "MakeCurrent");
+		rw.AddObserver("WindowIsCurrentEvent", this, "IsCurrent");
 	}
-	
+
 	@Override
 	public void initContext(float r, float g, float b) {
 		super.initContext(r, g, b);
 	}
-	
+
 	@Override
 	protected void initGL() {
 		super.initGL();
-        rw.SetMapped(1);
+		rw.SetMapped(1);
 		rw.SetSize(getWidth(), getHeight());
 		rw.OpenGLInit();
 	}
-	
+
 	@Override
 	protected void paintGL() {
 		// Run users code prior to render.
 		if(preRender != null)
 			preRender.rendering(this);
-		
+
 		rw.Render(); // without this there is no leak!
 		try {
 			swapBuffers();
@@ -98,13 +99,13 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void componentResized(ComponentEvent e) {
 		rw.SetSize(getWidth(), getHeight());	
 		super.componentResized(e);
 	}
-	
+
 	// This method is called from VTK when it needs to make the GL context current.
 	// This can happen outside of a renderer.Render() call!
 	public void MakeCurrent(){
@@ -118,20 +119,20 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 			e.printStackTrace();
 		}
 	}
-	
+
 	// This method is called from VTK go to check if the context window for the associated render window
 	// is current.
 	public void IsCurrent(){
-        try {
+		try {
 			if(isCurrent())
-			    rw.SetIsCurrentFlag(1);
+				rw.SetIsCurrentFlag(1);
 			else
-			    rw.SetIsCurrentFlag(0);
+				rw.SetIsCurrentFlag(0);
 		} catch (LWJGLException e) {
 			e.printStackTrace();
 		}
-    }
-	
+	}
+
 	@Override
 	public void removeNotify() {
 		if(autoDispose){
@@ -140,27 +141,27 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 				System.out.println("Destroying LWJGLVTKCanvas");
 				rw.RemoveAllObservers();
 				rw.RemoveRenderer(ren);
-		        rw.SetMapped(0);
+				rw.SetMapped(0);
 				rw = null;	
 			}
 			super.removeNotify();
 		}
 	}
-	
-			
+
+
 	public vtkRenderer getRenderer() {
 		return ren;
 	}
-	
+
 	public vtkRenderWindow getRenderWindow() {
 		return rw;
 	}
 
 	// Render vtk, swap buffers.
 	public void render() {
-        update(getGraphics());
+		update(getGraphics());
 	}
-    
+
 	public boolean isAutoDispose() {
 		return autoDispose;
 	}
@@ -169,7 +170,7 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 		this.autoDispose = autoDispose;
 	}
 
-	
+
 	public PreRenderOperation getPreRender() {
 		return preRender;
 	}
@@ -179,7 +180,7 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 	}
 
 	public static void main(String[] args) throws LWJGLException {
-                vtkNativeLibrary.COMMON.LoadLibrary();
+		vtkNativeLibrary.COMMON.LoadLibrary();
 		vtkNativeLibrary.FILTERING.LoadLibrary();
 		vtkNativeLibrary.IO.LoadLibrary();
 		vtkNativeLibrary.IMAGING.LoadLibrary();
@@ -195,6 +196,7 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 		actor.SetMapper(mapper);
 		canvas.getRenderer().AddActor(actor);
 		f.getContentPane().add(canvas, BorderLayout.CENTER);
+		f.setSize(new Dimension(100,100));
 		f.setVisible(true);
 	}
 }
