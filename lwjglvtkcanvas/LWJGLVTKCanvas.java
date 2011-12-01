@@ -181,13 +181,14 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 	}
 
 	public static void main(String[] args) throws LWJGLException {
-		new vtkMatlab();
+                vtkNativeLibrary.COMMON.LoadLibrary();
+		vtkNativeLibrary.FILTERING.LoadLibrary();
+		vtkNativeLibrary.IO.LoadLibrary();
+		vtkNativeLibrary.IMAGING.LoadLibrary();
+		vtkNativeLibrary.GRAPHICS.LoadLibrary();
+		vtkNativeLibrary.RENDERING.LoadLibrary();	
 		JFrame f = new JFrame();
 		LWJGLVTKCanvas canvas = new LWJGLVTKCanvas();
-		canvas.getRenderWindow().SetMultiSamples(4);
-		canvas.getRenderWindow().LineSmoothingOn();
-		canvas.getRenderWindow().PolygonSmoothingOn();
-		canvas.getRenderWindow().PointSmoothingOn();
 		vtkConeSource cone = new vtkConeSource();
 		cone.SetResolution(20);
 		vtkPolyDataMapper mapper = new vtkPolyDataMapper();
