@@ -7,13 +7,11 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.AWTGLCanvas;
 import org.lwjgl.opengl.PixelFormat;
 
-import pafec.vtkMatlab;
-
 import vtk.*;
 
 // A awt component which draws a vtk render window onto the screen using lwjgls AWTGLCanvas.
 // This is used instead of vtkCanvas/Panel because those classes seem to be unstable when the 
-// panels are disposed or more than one is in use.
+// panels are disposed or more than one is in use - see VTKXCBBugReproduce for an example.
 // The vtkCanvas/Panel classes also leak under linux, this does not.
 // How to use: 
 //   - Build lwjgl-vtkcanvas branch of vtk. 
