@@ -53,8 +53,7 @@ public class VTKMakeCurrentBugReproduce {
 		}
 
 		System.out.println("Finished adding actors to canvas...");
-		System.out.println("Now close the frame to see the error (happens all the time for me)");
-		System.out.println("You have to wait for a few seconds too...");
+		System.out.println("Now close the frame to see no error.");
 		// Keep the program running, run vtk gc
 		for(;;){
 			System.gc();
