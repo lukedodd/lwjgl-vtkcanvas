@@ -5,7 +5,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
-// Minimal example for vtk xcb crashse under linux.
+// Minimal example for vtk MakeCurrent crashse under windows.
 public class VTKMakeCurrentBugReproduce {
 	public static vtkPanel canvas;
 	public static void main(String argv[]) throws InterruptedException {
@@ -22,7 +22,7 @@ public class VTKMakeCurrentBugReproduce {
 				f.addWindowListener(new WindowAdapter() {
 					@Override
 					public void windowClosing(WindowEvent e) {
-						canvas.Delete(); // crashes with this here, or not
+						canvas.Delete();
 					}
 				});
 			}
@@ -53,7 +53,7 @@ public class VTKMakeCurrentBugReproduce {
 		}
 
 		System.out.println("Finished adding actors to canvas...");
-		System.out.println("Now close the frame to see the xcb error (happens ~10-50% of the time for me)");
+		System.out.println("Now close the frame to see the error (happens all the time for me)");
 		System.out.println("You have to wait for a few seconds too...");
 		// Keep the program running, run vtk gc
 		for(;;){
