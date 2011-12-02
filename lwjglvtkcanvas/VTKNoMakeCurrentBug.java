@@ -9,7 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
-// Minimal example for vtk xcb crashse under linux.
+// Deomonstrates that the MakeCurrent bug does not happen with lwjgl panel under windows.
 public class VTKNoMakeCurrentBug {
 	public static LWJGLVTKCanvas canvas;
 	public static void main(String argv[]) throws InterruptedException {
