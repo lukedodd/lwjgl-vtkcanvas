@@ -1,18 +1,18 @@
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-import javax.swing.JFrame;
-
+import org.knime.core.node.NodeLogger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.AWTGLCanvas;
-import org.lwjgl.opengl.PixelFormat;
 
-import vtk.*;
+import vtk.vtkGenericJavaRenderWindow;
+import vtk.vtkRenderer;
+import vtk.vtkRenderWindow;
 
 // A awt component which draws a vtk render window onto the screen using lwjgls AWTGLCanvas.
 // This is used instead of vtkCanvas/Panel because those classes seem to be unstable when the 
-// panels are disposed or more than one is in use - see VTKXCBBugReproduce for an example.
+// panels are disposed or more than one is in use.
 // The vtkCanvas/Panel classes also leak under linux, this does not.
 // How to use: 
 //   - Build lwjgl-vtkcanvas branch of vtk. 
@@ -40,57 +40,62 @@ import vtk.*;
 //
 //    [1] http://vtk.1045678.n5.nabble.com/Crashes-in-Java-wrapped-vtk-on-linux-because-of-xcb-problems-td5023093.html
 public class LWJGLVTKCanvas extends AWTGLCanvas{
-
-
-	private vtkRenderer ren;
+	
+	
+	protected vtkRenderer ren;
 	// A render window for which we can easily specify the MakeCurrent and IsCurrent 
 	// operations from Java using vtk observesr.
 	// (I don't use the standard vtkGenericRenderWindow class because it's not quite possible
 	//  to implement IsCurrent using observers from Java.)
-	private vtkGenericJavaRenderWindow rw;
-
+	protected vtkGenericJavaRenderWindow rw;
+	
+	// added this lock as locking seems to be important with the interactor
+	private Lock lock;
+	
 	// If true will dispose after removeNotify and panel can't be used after being removed.
 	private boolean autoDispose = true; 
-
-
+	
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(LWJGLVTKCanvas.class);
+	
 	public interface PreRenderOperation{
 		public void rendering(LWJGLVTKCanvas src);
 	}
-
+	
 	// This functor will be run prior to any render.
 	// Useful for catching renderings prompted by a resize.
 	private PreRenderOperation preRender = null;
-
+	
 	public LWJGLVTKCanvas() throws LWJGLException {
 		super();
+		lock = new ReentrantLock();
 		ren = new vtkRenderer();
 		rw = new vtkGenericJavaRenderWindow();
 		rw.AddRenderer(ren);
 		rw.SetSize(getWidth(), getHeight());
 		// Tell the generic render window how to make the GL context current.
-		rw.AddObserver("WindowMakeCurrentEvent", this, "MakeCurrent");
-		rw.AddObserver("WindowIsCurrentEvent", this, "IsCurrent");
+        rw.AddObserver("WindowMakeCurrentEvent", this, "MakeCurrent");
+        rw.AddObserver("WindowIsCurrentEvent", this, "IsCurrent");
 	}
-
+	
 	@Override
 	public void initContext(float r, float g, float b) {
 		super.initContext(r, g, b);
 	}
-
+	
 	@Override
 	protected void initGL() {
 		super.initGL();
-		rw.SetMapped(1);
+        rw.SetMapped(1);
 		rw.SetSize(getWidth(), getHeight());
 		rw.OpenGLInit();
 	}
-
+	
 	@Override
 	protected void paintGL() {
 		// Run users code prior to render.
 		if(preRender != null)
 			preRender.rendering(this);
-
+		
 		rw.Render(); // without this there is no leak!
 		try {
 			swapBuffers();
@@ -99,13 +104,15 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void componentResized(ComponentEvent e) {
+        lock();
 		rw.SetSize(getWidth(), getHeight());	
+        unlock();
 		super.componentResized(e);
 	}
-
+	
 	// This method is called from VTK when it needs to make the GL context current.
 	// This can happen outside of a renderer.Render() call!
 	public void MakeCurrent(){
@@ -119,49 +126,48 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 			e.printStackTrace();
 		}
 	}
-
+	
 	// This method is called from VTK go to check if the context window for the associated render window
 	// is current.
 	public void IsCurrent(){
-		try {
+        try {
 			if(isCurrent())
-				rw.SetIsCurrentFlag(1);
+			    rw.SetIsCurrentFlag(1);
 			else
-				rw.SetIsCurrentFlag(0);
+			    rw.SetIsCurrentFlag(0);
 		} catch (LWJGLException e) {
 			e.printStackTrace();
 		}
-	}
-
+    }
+	
 	@Override
 	public void removeNotify() {
 		if(autoDispose){
 			// Context is going to be destroyed, tell the render window first.
 			if(rw != null){
-				System.out.println("Destroying LWJGLVTKCanvas");
+			    LOGGER.debug("Destroying LWJGLVTKCanvas");
 				rw.RemoveAllObservers();
 				rw.RemoveRenderer(ren);
-				rw.SetMapped(0);
+		        rw.SetMapped(0);
 				rw = null;	
 			}
 			super.removeNotify();
 		}
 	}
 
-
-	public vtkRenderer getRenderer() {
+	public vtkRenderer GetRenderer() {
 		return ren;
 	}
-
-	public vtkRenderWindow getRenderWindow() {
+	
+	public vtkRenderWindow GetRenderWindow() {
 		return rw;
 	}
 
 	// Render vtk, swap buffers.
 	public void render() {
-		update(getGraphics());
+        update(getGraphics());
 	}
-
+    
 	public boolean isAutoDispose() {
 		return autoDispose;
 	}
@@ -170,7 +176,7 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 		this.autoDispose = autoDispose;
 	}
 
-
+	
 	public PreRenderOperation getPreRender() {
 		return preRender;
 	}
@@ -179,24 +185,19 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 		this.preRender = preRender;
 	}
 
-	public static void main(String[] args) throws LWJGLException {
-		vtkNativeLibrary.COMMON.LoadLibrary();
-		vtkNativeLibrary.FILTERING.LoadLibrary();
-		vtkNativeLibrary.IO.LoadLibrary();
-		vtkNativeLibrary.IMAGING.LoadLibrary();
-		vtkNativeLibrary.GRAPHICS.LoadLibrary();
-		vtkNativeLibrary.RENDERING.LoadLibrary();	
-		JFrame f = new JFrame();
-		LWJGLVTKCanvas canvas = new LWJGLVTKCanvas();
-		vtkConeSource cone = new vtkConeSource();
-		cone.SetResolution(20);
-		vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-		mapper.SetInputConnection(cone.GetOutputPort());
-		vtkActor actor = new vtkActor();
-		actor.SetMapper(mapper);
-		canvas.getRenderer().AddActor(actor);
-		f.getContentPane().add(canvas, BorderLayout.CENTER);
-		f.setSize(new Dimension(100,100));
-		f.setVisible(true);
+	public void lock() {
+	    this.lock.lock();
 	}
+	
+	public void unlock() {
+	    this.lock.unlock();
+	}
+
+    @Override
+    public void setSize(final int x, final int y) {
+        super.setSize(x, y);
+        lock();
+        rw.SetSize(x, y);
+        unlock();
+    }
 }
