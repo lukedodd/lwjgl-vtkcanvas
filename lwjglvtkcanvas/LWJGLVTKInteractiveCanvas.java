@@ -49,6 +49,7 @@ public class LWJGLVTKInteractiveCanvas extends LWJGLVTKCanvas implements MouseLi
         iren.TimerEventResetsTimerOff();
         iren.AddObserver("CreateTimerEvent", this, "StartTimer");
         iren.AddObserver("DestroyTimerEvent", this, "DestroyTimer");
+        iren.AddObserver("RenderEvent", this, "Render");
         iren.SetSize(200, 200);
         iren.ConfigureEvent();
 
@@ -87,6 +88,9 @@ public class LWJGLVTKInteractiveCanvas extends LWJGLVTKCanvas implements MouseLi
         bw = null;
     }
 
+    public void Render() {
+        this.render();
+    }
 
     public void StartTimer() {
         if (timer.isRunning())
@@ -121,10 +125,12 @@ public class LWJGLVTKInteractiveCanvas extends LWJGLVTKCanvas implements MouseLi
 
     public void BeginPlaneInteraction() {
         System.out.println("Plane widget begin interaction");
+        this.Render();
     }
 
     public void BeginBoxInteraction() {
         System.out.println("Box widget begin interaction");
+        this.Render();
     }
 
     @Override
@@ -153,8 +159,6 @@ public class LWJGLVTKInteractiveCanvas extends LWJGLVTKCanvas implements MouseLi
             iren.RightButtonPressEvent();
         }
         unlock();
-        
-        this.render();
     }
 
     @Override
@@ -183,8 +187,6 @@ public class LWJGLVTKInteractiveCanvas extends LWJGLVTKCanvas implements MouseLi
             iren.RightButtonReleaseEvent();
             unlock();
         }
-        
-        this.render();
     }
 
     @Override
@@ -228,8 +230,6 @@ public class LWJGLVTKInteractiveCanvas extends LWJGLVTKCanvas implements MouseLi
         lock();
         iren.MouseMoveEvent();
         unlock();
-        
-        this.render();
     }
 
     @Override
@@ -251,8 +251,6 @@ public class LWJGLVTKInteractiveCanvas extends LWJGLVTKCanvas implements MouseLi
         iren.KeyPressEvent();
         iren.CharEvent();
         unlock();
-        
-        this.render();
     }
 
     @Override
@@ -281,7 +279,14 @@ public class LWJGLVTKInteractiveCanvas extends LWJGLVTKCanvas implements MouseLi
         }
         
         unlock();
+    }
 
-        this.render();
+    @Override
+    public void setSize(int x, int y) {
+        super.setSize(x, y);
+        lock();
+        iren.SetSize(x, y);
+        iren.ConfigureEvent();
+        unlock();
     }
 }
