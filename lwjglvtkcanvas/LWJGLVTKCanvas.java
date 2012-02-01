@@ -60,6 +60,9 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 	public interface PreRenderOperation{
 		public void rendering(LWJGLVTKCanvas src);
 	}
+
+    // use this to check wheter we can make the context active or not
+    private boolean initGL = false;
 	
 	// This functor will be run prior to any render.
 	// Useful for catching renderings prompted by a resize.
@@ -70,7 +73,6 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 		lock = new ReentrantLock();
 		ren = new vtkRenderer();
 		rw = new vtkGenericJavaRenderWindow();
-		rw.AddRenderer(ren);
 		rw.SetSize(getWidth(), getHeight());
 		// Tell the generic render window how to make the GL context current.
         rw.AddObserver("WindowMakeCurrentEvent", this, "MakeCurrent");
@@ -85,9 +87,12 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 	@Override
 	protected void initGL() {
 		super.initGL();
+        rw.AddRenderer(ren);
         rw.SetMapped(1);
 		rw.SetSize(getWidth(), getHeight());
 		rw.OpenGLInit();
+
+        initGL = true;
 	}
 	
 	@Override
@@ -100,7 +105,6 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 		try {
 			swapBuffers();
 		} catch (LWJGLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -119,12 +123,12 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 		try {
 			// From a quick look at the source I think this does not do any AWT locking, 
 			// so hopefully deadlocks won't occur.
-			if(!isCurrent()){
+			if(initGL && !isCurrent()){
 				makeCurrent(); 
 			}
 		} catch (LWJGLException e) {
 			e.printStackTrace();
-		}
+        }
 	}
 	
 	// This method is called from VTK go to check if the context window for the associated render window
@@ -146,13 +150,12 @@ public class LWJGLVTKCanvas extends AWTGLCanvas{
 			// Context is going to be destroyed, tell the render window first.
 			if(rw != null){
 			    LOGGER.debug("Destroying LWJGLVTKCanvas");
-				rw.RemoveAllObservers();
-				rw.RemoveRenderer(ren);
+                rw.RemoveRenderer(ren);
 		        rw.SetMapped(0);
-				rw = null;	
 			}
 			super.removeNotify();
 		}
+        initGL = false;
 	}
 
 	public vtkRenderer GetRenderer() {
